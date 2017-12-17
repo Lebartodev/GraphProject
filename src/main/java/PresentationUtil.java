@@ -21,11 +21,9 @@ public class PresentationUtil {
             String[] line;
             reader.readNext();
             while ((line = reader.readNext()) != null) {
-                line[11] = line[11].replaceAll("'s ", "s ");
-                line[11] = line[11].replaceAll("'ve ", "ve ");
-                line[11] = line[11].replaceAll("M'B", "MB");
-
-                System.out.println(line[11]);
+                replaceRules(line,7);
+                replaceRules(line,11);
+                replaceRules(line,14);
                 List<RelatedTalk> relatedTalks = gson.fromJson(line[11], new TypeToken<List<RelatedTalk>>() {
                 }.getType());
                 List<String> tags = gson.fromJson(line[13], new TypeToken<List<String>>() {
@@ -42,5 +40,23 @@ public class PresentationUtil {
             e.printStackTrace();
         }
         return presentations;
+    }
+    private static void replaceRules(String[] line, int index){
+        line[index] = line[index].replaceAll("'s ", "s ");
+        line[index] = line[index].replaceAll("'ve ", "ve ");
+        line[index] = line[index].replaceAll("M'B", "MB");
+        line[index] = line[index].replaceAll("'re ", "re ");
+        line[index] = line[index].replaceAll("'ll ", "ll ");
+        line[index] = line[index].replaceAll("'t ", "t ");
+        line[index] = line[index].replaceAll("'m ", "m ");
+        line[index] = line[index].replaceAll("Alzheimer's", "Alzheimers");
+        line[index] = line[index].replaceAll("Parkinson's", "Parkinsons");
+        line[index] = line[index].replaceAll("don't", "dont");
+        line[index] = line[index].replaceAll("'s-eye", "s-eye");
+        line[index] = line[index].replaceAll("won't", "wont");
+        line[index] = line[index].replaceAll("kids' ", "kids ");
+
+
+
     }
 }
