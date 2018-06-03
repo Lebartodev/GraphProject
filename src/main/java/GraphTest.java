@@ -15,7 +15,9 @@ import org.neo4j.driver.v1.types.Relationship;
 
 import java.util.ArrayList;
 import java.util.List;
-import static org.apache.spark.sql.functions.*;
+
+import static org.apache.spark.sql.functions.desc;
+
 public class GraphTest {
     private Driver driver;
 
@@ -31,14 +33,6 @@ public class GraphTest {
         List<StructField> verFields = new ArrayList<StructField>();
         verFields.add(DataTypes.createStructField("id", DataTypes.LongType, true));
         verFields.add(DataTypes.createStructField("name", DataTypes.StringType, true));
-        verFields.add(DataTypes.createStructField("title", DataTypes.StringType, true));
-        verFields.add(DataTypes.createStructField("related_0", DataTypes.StringType, true));
-        verFields.add(DataTypes.createStructField("related_1", DataTypes.StringType, true));
-        verFields.add(DataTypes.createStructField("related_2", DataTypes.StringType, true));
-        verFields.add(DataTypes.createStructField("related_3", DataTypes.StringType, true));
-        verFields.add(DataTypes.createStructField("related_4", DataTypes.StringType, true));
-        verFields.add(DataTypes.createStructField("related_5", DataTypes.StringType, true));
-        verFields.add(DataTypes.createStructField("related_6", DataTypes.StringType, true));
 
         List<StructField> EdgFields = new ArrayList<StructField>();
         EdgFields.add(DataTypes.createStructField("src", DataTypes.LongType,
@@ -51,12 +45,7 @@ public class GraphTest {
         List<Row> testRows = new ArrayList<>();
         for (PresentationFromNeo4j presentation : presentations) {
             testRows.add(RowFactory.create(presentation.getId(),
-                    presentation.getName(),
-                    presentation.getTitle(),
-                    presentation.getRelated_0(), presentation.getRelated_1(),
-                    presentation.getRelated_2(), presentation.getRelated_3(),
-                    presentation.getRelated_4(), presentation.getRelated_5(),
-                    presentation.getRelated_6()));
+                    presentation.getName()));
         }
         JavaRDD<Row> verRow = sc.parallelize(testRows);
         List<Row> testEdgRows = new ArrayList<>();
@@ -72,7 +61,7 @@ public class GraphTest {
         GraphFrame g = GraphFrame.apply(verDF, edgDF);
         g.vertices().show();
 
-        GraphFrame prRes = g.pageRank().maxIter(10).resetProbability(0.15).run();
+        GraphFrame prRes = g.pageRank().tol(0.01).resetProbability(0.03).run();
         prRes.vertices().orderBy(desc("pagerank")).show();
 
     }
@@ -86,20 +75,19 @@ public class GraphTest {
 
     public List<PresentationFromNeo4j> matchPersonNodes(Transaction tx) {
         List<PresentationFromNeo4j> names = new ArrayList<>();
-        StatementResult result = tx.run("MATCH (n) RETURN n;");
+        StatementResult result = tx.run("MATCH (n:Presentation) RETURN n;");
         while (result.hasNext()) {
 
             Record record = result.next();
-            PresentationFromNeo4j presentationFromNeo4j = new PresentationFromNeo4j(record.get(0).asNode().id(), record.get(0).get("name").asString(),
-                    record.get(0).get("title").asString());
+            PresentationFromNeo4j presentationFromNeo4j = new PresentationFromNeo4j(record.get(0).asNode().id(), record.get(0).get("name").asString());
             try {
-                presentationFromNeo4j.setRelated_0(record.get(0).get("related_0").asString());
+               /* presentationFromNeo4j.setRelated_0(record.get(0).get("related_0").asString());
                 presentationFromNeo4j.setRelated_1(record.get(0).get("related_1").asString());
                 presentationFromNeo4j.setRelated_2(record.get(0).get("related_2").asString());
                 presentationFromNeo4j.setRelated_3(record.get(0).get("related_3").asString());
                 presentationFromNeo4j.setRelated_4(record.get(0).get("related_4").asString());
                 presentationFromNeo4j.setRelated_5(record.get(0).get("related_5").asString());
-                presentationFromNeo4j.setRelated_6(record.get(0).get("related_6").asString());
+                presentationFromNeo4j.setRelated_6(record.get(0).get("related_6").asString());*/
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -117,7 +105,7 @@ public class GraphTest {
 
     public List<Relationship> matchRelations(Transaction tx) {
         List<Relationship> names = new ArrayList<>();
-        StatementResult result = tx.run("MATCH (n)-[r]->(m) RETURN r;");
+        StatementResult result = tx.run("MATCH (n)-[r:RELATION]->(m) RETURN r;");
         while (result.hasNext()) {
 
             Record record = result.next();

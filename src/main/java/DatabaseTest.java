@@ -16,15 +16,15 @@ public class DatabaseTest {
         for (Presentation presentation : presentations) {
             session.writeTransaction(transaction -> {
                 //"CREATE (n:Person { name: 'Andres', title: 'Developer' })";
-                String tran = "MERGE (p:Presentation {title: '" + presentation.getTitle().replaceAll("'","")
-                        + "', name: '" + presentation.getName().replaceAll("'","")
-                        + "', speaker: '" + presentation.getMain_speaker().replaceAll("'","");
+                String tran = "MERGE (p:Presentation {title: '" + presentation.getTitle().replaceAll("'", "")
+                        + "', name: '" + presentation.getName().replaceAll("'", "")
+                        + "', speaker: '" + presentation.getMain_speaker().replaceAll("'", "");
 
 
                 for (RelatedTalk relatedTalk : presentation.getRelated_talks()) {
-                    tran += "', related_" + presentation.getRelated_talks().indexOf(relatedTalk) + ": '" + relatedTalk.getTitle().replaceAll("'","");
+                    tran += "', related_" + presentation.getRelated_talks().indexOf(relatedTalk) + ": '" + relatedTalk.getTitle().replaceAll("'", "");
                 }
-                tran+= "'}) return 'kek'";
+                tran += "'}) return 'kek'";
                 StatementResult result = transaction.run(tran);
                 return result.single().get(0).asString();
             });

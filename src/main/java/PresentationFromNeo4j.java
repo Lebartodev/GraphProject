@@ -2,6 +2,7 @@ public class PresentationFromNeo4j {
     private long id;
     private String name;
     private String title;
+    private String speaker;
     private String related_0;
     private String related_1;
     private String related_2;
@@ -10,11 +11,19 @@ public class PresentationFromNeo4j {
     private String related_5;
     private String related_6;
 
-    public PresentationFromNeo4j(long id, String name, String title) {
+    public PresentationFromNeo4j(long id, String name, String title, String speaker) {
         this.id = id;
         this.name = name;
         this.title = title;
+        this.speaker = speaker;
     }
+    public PresentationFromNeo4j(long id, String name) {
+        this.id = id;
+        this.name = name;
+        this.title = title;
+        this.speaker = speaker;
+    }
+
 
     public long getId() {
         return id;
